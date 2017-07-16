@@ -3,9 +3,9 @@ import requests as re
 
 class DataPull:
 
-	def __init__(self, url, file, chunk_size=2000):
+	def __init__(self, url, file='log.txt', chunk_size=2000):
 		self.__url = url
-		self.__request = re.get(self.url, stream=True)
+		self.send_request()
 		self.__file = file
 		self.__chunk_size = chunk_size
 
@@ -21,7 +21,7 @@ class DataPull:
 	def file(self):
 		return self.__file
 
-	@chunk_size.setter
+	@file.setter
 	def file(self, value):
 		self.__file = value
 
@@ -34,9 +34,13 @@ class DataPull:
 		assert int(value)
 		self.__chunk_size = value
 
-	def resend_request(self):
-		self.request = re.get(self.url, stream=True)
+	def send_request(self):
+		print('Sending request to {url}...'.format(url=self.__url))
+		self.__request = re.get(self.__url)
+		print('Request received...')
 
 	def download(self):
-		with open('temp/{file}'.format(file=self.file)) as file:
-			for chunk in re.iter_content(self.__chunk_size)
+		with open(self.__file, 'wb') as file:
+			for count,chunk in enumerate(iter(self.__request)):
+				print('Writing chunk {chunk}...'.format(chunk=count))
+				file.write(chunk)

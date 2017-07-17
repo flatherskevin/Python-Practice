@@ -37,7 +37,7 @@ class DataPull:
 	def send_request(self):
 		print('Sending request to {url}...'.format(url=self.__url))
 		self.__request = re.get(self.__url)
-		print('Request received...')
+		print('Request received')
 
 	def download(self):
 		with open(self.__file, 'wb') as file:

@@ -10,15 +10,13 @@ class TradeBot:
 	def get_url(self):
 		return self.__url
 
-	def __grouper(self, n, iterable, fillvalue=''):
-		args = [iter(iterable) * n]
-		return itertools.zip_longest(fillvalue=fillvalue, *args)
+
 
 	class __Info:
 		def __init__(self, parent):
 			assert list(pair_list)
 			self.__parent = parent
-			self.__url = '{super_url}info'.format(super_url=parent.get_url())
+			self.__url = '{super_url}info'.format(super_url=self.__parent.get_url())
 			print(self.__url)
 			self.__request = None
 			self.__history = []
@@ -55,25 +53,51 @@ class TradeBot:
 			assert list(pair_list)
 			self.__parent = parent
 			self.__pair_list = pair_list
-			self.__set_url()
-			print(self.__url)
+			#self.__set_url(self.__pair_list)
+			#print(self.__url)
 			self.__request = None
 			self.__request_json = {}
 			self.__history = []
+			self.__chunksize = 20
+
+		@property
+		def data(self):
+			return self.__request_json
+
+		@data.setter
+		def data(self, value):
+			self.__request_json = value
+
+		@property
+		def chunksize(self):
+			return self.__chunksize
+
+		@chunksize.setter
+		def chunksize(self, value):
+			self.__chunksize = value
 
 		def new_request(self):
-			self.__request = requests.get(self.__url)
-			if self.__request.status_code == 200:
-				self.__request_json = self.__request.json()
-			elif self.__request.status_code == 414:
-				for item in self.__parent.__grouper(10, self.__pair_list):
-					self.__set_url()
-					self.__request_json = self.__request_json.append(requests.get(self.__url).json())
+			for item in [self.__pair_list[i:i + self.__chunksize] for i in range(0, len(self.__pair_list), self.__chunksize)]:
+				print('Request compiling for: {item}'.format(item=item))
+				self.__set_url(item)
+				__new = requests.get(self.__url)
+				print('Status code: {code}'.format(code=__new.status_code))
+				assert (__new.status_code == 200), 'URL status code error: {code}'.format(code=__new.status_code)
+				print('Response gathered')
+				for subitem in __new.json():
+					self.__request_json[subitem] = __new.json()[subitem]
+				print('Response added to master list\n\n')
 
-			self.__history.append(self.__request)
+
+			self.__history.append(self.__request_json)
 			
-		def __set_url(self):
-			self.__url = '{super_url}ticker/{pair}'.format(super_url=self.__parent.get_url(),pair='-'.join(self.__pair_list))
+		def __set_url(self, group):
+			self.__url = '{super_url}ticker/{pair}'.format(super_url=self.__parent.get_url(),pair='-'.join(group))
+			print('URL created: {url}'.format(url=self.__url))
+
+		def __grouper(self, in_list, chunk=5):
+			for i in range(0, len(in_list), chunk):
+				yield in_list[i:i + chunk]
 
 		@property
 		def history(self):

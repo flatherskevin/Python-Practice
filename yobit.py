@@ -7,7 +7,7 @@ class YoBit:
 	def __init__(self, type):
 
 		self.__link = 'https://yobit.net/api/3/ticker/{type}'.format(type=type)
-		self.__request = requests.get(self.__link, auth=(self.__user, self.__password))
+		self.__request = requests.get(self.__link)
 		self.__type = type
 		self.__json = self.__request.json()[self.__type]
 

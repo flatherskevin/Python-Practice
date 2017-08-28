@@ -17,7 +17,6 @@ class TradeBot:
 			assert list(pair_list)
 			self.__parent = parent
 			self.__url = '{super_url}info'.format(super_url=self.__parent.get_url())
-			print(self.__url)
 			self.__request = None
 			self.__history = []
 			self.__pairs = []
@@ -64,9 +63,9 @@ class TradeBot:
 		def data(self):
 			return self.__request_json
 
-		@data.setter
-		def data(self, value):
-			self.__request_json = value
+		#@data.setter
+		#def data(self, value):
+		#	self.__request_json = value
 
 		@property
 		def chunksize(self):
@@ -95,36 +94,19 @@ class TradeBot:
 			self.__url = '{super_url}ticker/{pair}'.format(super_url=self.__parent.get_url(),pair='-'.join(group))
 			print('URL created: {url}'.format(url=self.__url))
 
-		def __grouper(self, in_list, chunk=5):
-			for i in range(0, len(in_list), chunk):
-				yield in_list[i:i + chunk]
-
 		@property
 		def history(self):
 			return self.__history
 
-		def print_pretty(self, to_print=None, print_type='batch'):
-			def __print(item):
-				pass
-
-			print('\n')
-			if print_type == 'batch':
-				#if to_print == None:
-				#	to_print = self.__request_json
-				#for item in to_print:
-				#	__print(item)
-				pass
-			elif print_type == 'single':
-				if to_print == None:
-					to_print = 'html_btc'
-				print('***{to_print}***'.format(to_print=to_print))
-				print(to_print)
-				for subitem in to_print:
+		def print_pretty(self):
+			for item in self.__request_json:
+				print('***{item}***'.format(item=item))
+				for subitem in self.__request_json[item]:
 					if subitem in ['buy','sell','high','low','avg','last']:
-						to_print[subitem] = '{0:.10f}'.format(to_print[subitem])
+						self.__request_json[item][subitem] = '{0:.10f}'.format(self.__request_json[item][subitem])
 					elif subitem == 'updated':
-						to_print[subitem] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(to_print[subitem])))
-					print('{key}	:	{value}'.format(key=subitem,value=to_print[subitem]))
+						self.__request_json[item][subitem] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(self.__request_json[item][subitem])))
+					print('{key}	: {value}'.format(key=subitem,value=self.__request_json[item][subitem]))
 				print('\n')
 
 	def Ticker(self, pair_list):
@@ -150,4 +132,5 @@ charlie.new_request()
 jackie = bot.Ticker(charlie.pairs)
 jackie.new_request()
 #jackie.print_pretty()
-jackie.print_pretty(to_print=jackie.data['eth_btc'], print_type='single')
+#jackie.print_pretty(jackie.data['html5_btc'], jackie.data['btc_usd'], jackie.data['maze_btc'])
+jackie.print_pretty()

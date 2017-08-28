@@ -103,30 +103,36 @@ class TradeBot:
 		def history(self):
 			return self.__history
 
-		def print_pretty(self, type='current'):
-			def __print(data):
+		def print_pretty(self, to_print=None, print_type='batch'):
+			def __print(item):
+				pass
+
+			print('\n')
+			if print_type == 'batch':
+				#if to_print == None:
+				#	to_print = self.__request_json
+				#for item in to_print:
+				#	__print(item)
+				pass
+			elif print_type == 'single':
+				if to_print == None:
+					to_print = 'html_btc'
+				print('***{to_print}***'.format(to_print=to_print))
+				print(to_print)
+				for subitem in to_print:
+					if subitem in ['buy','sell','high','low','avg','last']:
+						to_print[subitem] = '{0:.10f}'.format(to_print[subitem])
+					elif subitem == 'updated':
+						to_print[subitem] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(to_print[subitem])))
+					print('{key}	:	{value}'.format(key=subitem,value=to_print[subitem]))
 				print('\n')
-				for item in data:
-					print('***{item}***'.format(item=item))
-					for subitem in data[item]:
-						if subitem in ['buy','sell','high','low','avg','last']:
-							data[item][subitem] = '{0:.10f}'.format(data[item][subitem])
-						elif subitem == 'updated':
-							data[item][subitem] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(data[item][subitem])))
-						print('{key}	:	{value}'.format(key=subitem,value=data[item][subitem]))
-					print('\n')
-			if type == 'current':
-				__print(self.__request_json)
-			elif type == 'history':
-				for item in self.__history:
-					__print(item)
 
 	def Ticker(self, pair_list):
 		return self.__Ticker(self, pair_list)
 
 	def Info(self):
 		return self.__Info(self)
-
+ 
 
 
 #######################################################################
@@ -143,4 +149,5 @@ charlie.new_request()
 #jackie = bot.Ticker(pair_list)
 jackie = bot.Ticker(charlie.pairs)
 jackie.new_request()
-jackie.print_pretty()
+#jackie.print_pretty()
+jackie.print_pretty(to_print=jackie.data['eth_btc'], print_type='single')
